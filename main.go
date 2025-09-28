@@ -18,11 +18,19 @@ func main() {
 
 	file, err := os.Open(filename)
 
+	if err != nil {
+		println("Error opening file:", err.Error())
+		os.Exit(1)
+	}
+
+	defer file.Close()
+
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		url := scanner.Text()
-		news.FetchNews(url)
+		news := news.FetchNews(url)
 		println("Successfully fetched URL:", url)
+		SaveNewsList(news)
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -33,5 +41,14 @@ func main() {
 	if err != nil {
 		println("Error fetching URL:", err.Error())
 		os.Exit(1)
+	}
+}
+
+func SaveNewsList(news []news.News) {
+	// Save the news item to the database
+	// This is a placeholder function; implement actual DB logic here
+	for _, item := range news {
+		println("Saving news item:", item.Title)
+		item.Save()
 	}
 }

@@ -6,6 +6,8 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"rss-go/db"
+	"strings"
 )
 
 type News struct {
@@ -38,7 +40,7 @@ type Channel struct {
 	Item  []News `xml:"item"`
 }
 
-func FetchNews(url string) {
+func FetchNews(url string) []News {
 	// Simulate fetching the URL
 	resp, err := http.Get(url)
 
@@ -68,7 +70,24 @@ func FetchNews(url string) {
 		os.Exit(1)
 	}
 
-	for _, news := range rss.Channel.Item {
-		fmt.Printf("Title: %s\n Image : %s\nLink: %s\nDescription: %s\n\n", news.Title, news.Media.URL, news.Link, news.Description)
+	return rss.Channel.Item
+}
+
+func (news *News) Save() {
+
+	m := db.InitDB()
+	// Save the news item to the database
+	// This is a placeholder function; implement actual DB logic here
+	println("Saving news item:", news.Title)
+
+	slug := strings.ToLower(strings.ReplaceAll(news.Title, " ", "-"))
+
+	_, err := m.DB.Exec("INSERT INTO news (uuid, title, title_slug, image, pub_date, link, description) VALUES (?, ?, ?, ?, ?, ?, ?)",
+		news.GUID, news.Title, slug, news.Media.URL, news.PubDate, news.Link, news.Description)
+
+	if err != nil {
+		println("Error saving news item:", err.Error())
 	}
+
+	defer m.Close()
 }
