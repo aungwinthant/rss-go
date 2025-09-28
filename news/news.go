@@ -82,7 +82,16 @@ func (news *News) Save() {
 
 	slug := strings.ToLower(strings.ReplaceAll(news.Title, " ", "-"))
 
-	_, err := m.DB.Exec("INSERT INTO news (uuid, title, title_slug, image, pub_date, link, description) VALUES (?, ?, ?, ?, ?, ?, ?)",
+	exists, err := m.DB.Query("SELECT COUNT(*) FROM news WHERE uuid = ?", news.GUID)
+	if err != nil {
+		println("Error checking for existing news item:", err.Error())
+		return
+	}
+	if exists.Next() {
+		println("News item already exists, skipping:", news.Title)
+		return
+	}
+	_, err = m.DB.Exec("INSERT INTO news (uuid, title, title_slug, image, pub_date, link, description) VALUES (?, ?, ?, ?, ?, ?, ?)",
 		news.GUID, news.Title, slug, news.Media.URL, news.PubDate, news.Link, news.Description)
 
 	if err != nil {
