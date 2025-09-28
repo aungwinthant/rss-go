@@ -41,7 +41,6 @@ type Channel struct {
 }
 
 func FetchNews(url string) []News {
-	// Simulate fetching the URL
 	resp, err := http.Get(url)
 
 	if err != nil {
@@ -75,9 +74,8 @@ func FetchNews(url string) []News {
 
 func (news *News) Save() {
 
-	m := db.InitDB()
-	// Save the news item to the database
-	// This is a placeholder function; implement actual DB logic here
+	m, _ := db.NewDBManager()
+
 	println("Saving news item:", news.Title)
 
 	slug := strings.ToLower(strings.ReplaceAll(news.Title, " ", "-"))

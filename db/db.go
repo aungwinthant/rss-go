@@ -3,7 +3,6 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -24,28 +23,19 @@ func NewDBManager() (*DBManager, error) {
 		return nil, fmt.Errorf("error connecting to database: %w", err)
 	}
 
-	return &DBManager{DB: db}, nil
-}
+	if err := CreateTables(db); err != nil {
+		db.Close() // IMPORTANT: Close connection on failure
+		return nil, fmt.Errorf("error setting up database schema: %w", err)
+	}
 
-func InitDB() *DBManager {
-	m, err := NewDBManager()
-	if err != nil {
-		println("Error initializing DBManager:", err.Error())
-		os.Exit(1)
-	}
-	err = m.CreateTables()
-	if err != nil {
-		println("Error creating tables:", err.Error())
-		os.Exit(1)
-	}
-	return m
+	return &DBManager{DB: db}, nil
 }
 
 func (m *DBManager) Close() {
 	m.DB.Close()
 }
 
-func (m *DBManager) CreateTables() error {
+func CreateTables(db *sql.DB) error {
 	// Create a table if it doesn't exist
 	createTableSQL := `CREATE TABLE IF NOT EXISTS news (
 		"id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -58,7 +48,7 @@ func (m *DBManager) CreateTables() error {
 		"description" TEXT
 	  );`
 
-	_, err := m.DB.Exec(createTableSQL)
+	_, err := db.Exec(createTableSQL)
 	if err != nil {
 		return fmt.Errorf("error creating table: %w", err)
 	}
