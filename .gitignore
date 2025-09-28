@@ -1,1 +1,14 @@
 sites.txt
+*.db
+*.sqlite
+*.sqlite3
+*.log
+*.env
+.DS_Store
+vendor/
+node_modules/
+.idea/
+.vscode/
+*.exe
+*.out
+*.test      
