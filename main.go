@@ -3,14 +3,16 @@ package main
 import (
 	"bufio"
 	"os"
-	"rss-go/news"
+
+	"rss-go/internal/models"
 )
 
 func main() {
 	args := os.Args[1:]
 
+	var news models.News
 	if len(args) < 1 {
-		println("Usage: go run main.go <sites.txt>")
+		news.ShowNews()
 		os.Exit(1)
 	}
 
@@ -28,7 +30,7 @@ func main() {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		url := scanner.Text()
-		news := news.FetchNews(url)
+		news := fetchrss.Fetch(url)
 		println("Successfully fetched URL:", url)
 		SaveNewsList(news)
 	}
@@ -43,7 +45,7 @@ func main() {
 	}
 }
 
-func SaveNewsList(news []news.News) {
+func SaveNewsList(news []models.News) {
 
 	for _, item := range news {
 		println("Saving news item:", item.Title)
